@@ -51,17 +51,17 @@ const ID_TRAY_VNI: usize = 1004;
 const ID_TRAY_AUTORUN: usize = 1005;
 const ID_TRAY_EXIT: usize = 1006;
 
-// Kích thước cửa sổ
-const WIN_WIDTH: i32 = 470;
-const WIN_HEIGHT: i32 = 530;
+// Kích thước cửa sổ (mở rộng để chứa font chữ to rõ nét, thoáng đãng)
+const WIN_WIDTH: i32 = 500;
+const WIN_HEIGHT: i32 = 580;
 
 // Các tọa độ vùng tương tác (Hit Test)
-const RECT_CLOSE: RECT = RECT { left: 432, top: 12, right: 456, bottom: 36 };
-const RECT_TAB_TELEX: RECT = RECT { left: 32, top: 136, right: 136, bottom: 172 };
-const RECT_TAB_VNI: RECT = RECT { left: 136, top: 136, right: 240, bottom: 172 };
-const RECT_BTN_TOGGLE_VE: RECT = RECT { left: 286, top: 134, right: 438, bottom: 174 };
-const RECT_CHK_STARTUP: RECT = RECT { left: 32, top: 400, right: 270, bottom: 426 };
-const RECT_BTN_MINIMIZE: RECT = RECT { left: 32, top: 440, right: 438, bottom: 486 };
+const RECT_CLOSE: RECT = RECT { left: 456, top: 12, right: 486, bottom: 42 };
+const RECT_TAB_TELEX: RECT = RECT { left: 32, top: 144, right: 142, bottom: 184 };
+const RECT_TAB_VNI: RECT = RECT { left: 142, top: 144, right: 252, bottom: 184 };
+const RECT_BTN_TOGGLE_VE: RECT = RECT { left: 298, top: 142, right: 468, bottom: 186 };
+const RECT_CHK_STARTUP: RECT = RECT { left: 32, top: 440, right: 350, bottom: 472 };
+const RECT_BTN_MINIMIZE: RECT = RECT { left: 32, top: 486, right: 468, bottom: 538 };
 
 /// Kiểm tra xem ứng dụng đã được đặt tự khởi động cùng Windows chưa
 pub fn is_autostart_enabled() -> bool {
@@ -103,62 +103,79 @@ pub fn set_autostart(enable: bool) -> bool {
     }
 }
 
-/// Vẽ khuôn mặt chú heo Burin tại tọa độ bất kỳ trên HDC
+/// Vẽ khuôn mặt chú heo Burin siêu dễ thương tại tọa độ bất kỳ trên HDC
 unsafe fn draw_piggy_face(hdc: windows::Win32::Graphics::Gdi::HDC, cx: i32, cy: i32, r: i32, is_v: bool) {
-    let face_color = if is_v { COLORREF(0x00B5A6FF) } else { COLORREF(0x00B8B8B8) };
-    let ear_color  = if is_v { COLORREF(0x008E70FF) } else { COLORREF(0x008A8A8A) };
-    let inner_ear  = if is_v { COLORREF(0x00D0C0FF) } else { COLORREF(0x00CECECE) };
-    let cheek_color= if is_v { COLORREF(0x009080FF) } else { COLORREF(0x00A0A0A0) };
-    let snout_color= if is_v { COLORREF(0x007860FF) } else { COLORREF(0x00757575) };
+    // Màu sắc tươi sáng, ngọt ngào (Kawaii Pink)
+    let face_color   = if is_v { COLORREF(0x00C3B2FF) } else { COLORREF(0x00D0D0D0) }; // Hồng phấn tươi mịn #FFB2C3
+    let ear_color    = if is_v { COLORREF(0x00B4A0FF) } else { COLORREF(0x00B8B8B8) }; // Tai ngoài #FFA0B4
+    let inner_ear    = if is_v { COLORREF(0x00DAAEFF) } else { COLORREF(0x00E0E0E0) }; // Tai trong hồng sáng #FFAEDA
+    let cheek_color  = if is_v { COLORREF(0x009BA2FF) } else { COLORREF(0x00BEBEBE) }; // Má hồng đào ngọt #FFA29B
+    let snout_color  = if is_v { COLORREF(0x00A58EFF) } else { COLORREF(0x00A8A8A8) }; // Mũi heo xinh xắn #FF8EA5
+    let snout_light  = if is_v { COLORREF(0x00C0B0FF) } else { COLORREF(0x00C8C8C8) }; // Highlight sống mũi
+    let eye_color    = COLORREF(0x00261E2D); // Nâu socola đen ấm #2D1E26
+    let nostril_color= if is_v { COLORREF(0x005F46A0) } else { COLORREF(0x00606060) }; // Lỗ mũi đỏ hồng rượu nhẹ
+    let white_color  = COLORREF(0x00FFFFFF);
 
     let brush_face = CreateSolidBrush(face_color);
     let brush_ear = CreateSolidBrush(ear_color);
     let brush_inner_ear = CreateSolidBrush(inner_ear);
     let brush_snout = CreateSolidBrush(snout_color);
+    let brush_snout_light = CreateSolidBrush(snout_light);
     let brush_cheek = CreateSolidBrush(cheek_color);
-    let brush_eye = CreateSolidBrush(COLORREF(0x001A1A1A));
-    let brush_white = CreateSolidBrush(COLORREF(0x00FFFFFF));
+    let brush_eye = CreateSolidBrush(eye_color);
+    let brush_nostril = CreateSolidBrush(nostril_color);
+    let brush_white = CreateSolidBrush(white_color);
 
     let pen_null = CreatePen(PS_SOLID, 0, face_color);
     let old_pen = SelectObject(hdc, HGDIOBJ(pen_null.0));
 
-    // Tai ngoài
+    // 1. Tai ngoài vểnh tự nhiên
     let _ = SelectObject(hdc, HGDIOBJ(brush_ear.0));
-    let _ = Ellipse(hdc, cx - r * 8 / 10, cy - r * 9 / 10, cx - r * 2 / 10, cy - r * 2 / 10);
-    let _ = Ellipse(hdc, cx + r * 2 / 10, cy - r * 9 / 10, cx + r * 8 / 10, cy - r * 2 / 10);
+    let _ = Ellipse(hdc, cx - r * 85 / 100, cy - r * 95 / 100, cx - r * 20 / 100, cy - r * 15 / 100);
+    let _ = Ellipse(hdc, cx + r * 20 / 100, cy - r * 95 / 100, cx + r * 85 / 100, cy - r * 15 / 100);
 
-    // Tai trong
+    // Tai trong hồng phấn
     let _ = SelectObject(hdc, HGDIOBJ(brush_inner_ear.0));
-    let _ = Ellipse(hdc, cx - r * 7 / 10, cy - r * 8 / 10, cx - r * 3 / 10, cy - r * 3 / 10);
-    let _ = Ellipse(hdc, cx + r * 3 / 10, cy - r * 8 / 10, cx + r * 7 / 10, cy - r * 3 / 10);
+    let _ = Ellipse(hdc, cx - r * 75 / 100, cy - r * 85 / 100, cx - r * 30 / 100, cy - r * 25 / 100);
+    let _ = Ellipse(hdc, cx + r * 30 / 100, cy - r * 85 / 100, cx + r * 75 / 100, cy - r * 25 / 100);
 
-    // Khuôn mặt
+    // 2. Khuôn mặt tròn đầy phúng phính
     let _ = SelectObject(hdc, HGDIOBJ(brush_face.0));
-    let _ = Ellipse(hdc, cx - r, cy - r * 7 / 10, cx + r, cy + r);
+    let _ = Ellipse(hdc, cx - r, cy - r * 70 / 100, cx + r, cy + r * 95 / 100);
 
-    // Má hồng
+    // 3. Đôi má hồng đào to tròn đáng yêu
     let _ = SelectObject(hdc, HGDIOBJ(brush_cheek.0));
-    let _ = Ellipse(hdc, cx - r * 9 / 10, cy + r * 1 / 10, cx - r * 5 / 10, cy + r * 5 / 10);
-    let _ = Ellipse(hdc, cx + r * 5 / 10, cy + r * 1 / 10, cx + r * 9 / 10, cy + r * 5 / 10);
+    let _ = Ellipse(hdc, cx - r * 85 / 100, cy + r * 15 / 100, cx - r * 45 / 100, cy + r * 55 / 100);
+    let _ = Ellipse(hdc, cx + r * 45 / 100, cy + r * 15 / 100, cx + r * 85 / 100, cy + r * 55 / 100);
 
-    // Mắt
+    // 4. Mắt to tròn long lanh kiểu anime
     let _ = SelectObject(hdc, HGDIOBJ(brush_eye.0));
-    let _ = Ellipse(hdc, cx - r * 6 / 10, cy - r * 2 / 10, cx - r * 3 / 10, cy + r * 2 / 10);
-    let _ = Ellipse(hdc, cx + r * 3 / 10, cy - r * 2 / 10, cx + r * 6 / 10, cy + r * 2 / 10);
+    let _ = Ellipse(hdc, cx - r * 55 / 100, cy - r * 15 / 100, cx - r * 25 / 100, cy + r * 25 / 100);
+    let _ = Ellipse(hdc, cx + r * 25 / 100, cy - r * 15 / 100, cx + r * 55 / 100, cy + r * 25 / 100);
 
-    // Đốm sáng mắt
+    // Đốm sáng to long lanh góc trên
     let _ = SelectObject(hdc, HGDIOBJ(brush_white.0));
-    let _ = Ellipse(hdc, cx - r * 5 / 10, cy - r * 1 / 10, cx - r * 4 / 10, cy + r * 1 / 10);
-    let _ = Ellipse(hdc, cx + r * 4 / 10, cy - r * 1 / 10, cx + r * 5 / 10, cy + r * 1 / 10);
+    let _ = Ellipse(hdc, cx - r * 50 / 100, cy - r * 10 / 100, cx - r * 35 / 100, cy + r * 5 / 100);
+    let _ = Ellipse(hdc, cx + r * 30 / 100, cy - r * 10 / 100, cx + r * 45 / 100, cy + r * 5 / 100);
 
-    // Mũi heo
+    // Đốm sáng nhỏ góc dưới
+    if r >= 14 {
+        let _ = Ellipse(hdc, cx - r * 33 / 100, cy + r * 8 / 100, cx - r * 27 / 100, cy + r * 16 / 100);
+        let _ = Ellipse(hdc, cx + r * 47 / 100, cy + r * 8 / 100, cx + r * 53 / 100, cy + r * 16 / 100);
+    }
+
+    // 5. Chiếc mũi heo bầu bĩnh xinh xắn
     let _ = SelectObject(hdc, HGDIOBJ(brush_snout.0));
-    let _ = Ellipse(hdc, cx - r * 4 / 10, cy + r * 1 / 10, cx + r * 4 / 10, cy + r * 6 / 10);
+    let _ = Ellipse(hdc, cx - r * 40 / 100, cy + r * 10 / 100, cx + r * 40 / 100, cy + r * 65 / 100);
 
-    // Lỗ mũi
-    let _ = SelectObject(hdc, HGDIOBJ(brush_eye.0));
-    let _ = Ellipse(hdc, cx - r * 2 / 10, cy + r * 25 / 100, cx - r * 5 / 100, cy + r * 45 / 100);
-    let _ = Ellipse(hdc, cx + r * 5 / 100, cy + r * 25 / 100, cx + r * 2 / 10, cy + r * 45 / 100);
+    // Vệt highlight nhẹ trên mũi
+    let _ = SelectObject(hdc, HGDIOBJ(brush_snout_light.0));
+    let _ = Ellipse(hdc, cx - r * 25 / 100, cy + r * 14 / 100, cx + r * 25 / 100, cy + r * 32 / 100);
+
+    // Lỗ mũi nhỏ xinh
+    let _ = SelectObject(hdc, HGDIOBJ(brush_nostril.0));
+    let _ = Ellipse(hdc, cx - r * 22 / 100, cy + r * 32 / 100, cx - r * 8 / 100, cy + r * 52 / 100);
+    let _ = Ellipse(hdc, cx + r * 8 / 100, cy + r * 32 / 100, cx + r * 22 / 100, cy + r * 52 / 100);
 
     // Dọn dẹp
     SelectObject(hdc, old_pen);
@@ -167,8 +184,10 @@ unsafe fn draw_piggy_face(hdc: windows::Win32::Graphics::Gdi::HDC, cx: i32, cy: 
     let _ = DeleteObject(HGDIOBJ(brush_ear.0));
     let _ = DeleteObject(HGDIOBJ(brush_inner_ear.0));
     let _ = DeleteObject(HGDIOBJ(brush_snout.0));
+    let _ = DeleteObject(HGDIOBJ(brush_snout_light.0));
     let _ = DeleteObject(HGDIOBJ(brush_cheek.0));
     let _ = DeleteObject(HGDIOBJ(brush_eye.0));
+    let _ = DeleteObject(HGDIOBJ(brush_nostril.0));
     let _ = DeleteObject(HGDIOBJ(brush_white.0));
 }
 
@@ -491,9 +510,9 @@ unsafe extern "system" fn wnd_proc(
                 // ==========================================
                 // 2. HEADER GRADIENT CAM HỒNG (Coral / Peach Pink)
                 // ==========================================
-                // Vẽ gradient mô phỏng nhẹ nhàng từ top xuống 102px
-                for y in 0..102 {
-                    let ratio = y as f32 / 102.0;
+                // Vẽ gradient từ top xuống 110px
+                for y in 0..110 {
+                    let ratio = y as f32 / 110.0;
                     let r = (244.0 + (248.0 - 244.0) * ratio) as u32;
                     let g = (112.0 + (126.0 - 112.0) * ratio) as u32;
                     let b = (115.0 + (130.0 - 115.0) * ratio) as u32;
@@ -508,7 +527,7 @@ unsafe extern "system" fn wnd_proc(
                 let pen_null = CreatePen(PS_SOLID, 0, COLORREF(0x008ED2FB));
                 let old_pen = SelectObject(hdc, HGDIOBJ(pen_null.0));
                 let _ = SelectObject(hdc, HGDIOBJ(wave_brush.0));
-                let _ = Ellipse(hdc, WIN_WIDTH - 150, -40, WIN_WIDTH + 80, 140);
+                let _ = Ellipse(hdc, WIN_WIDTH - 160, -40, WIN_WIDTH + 80, 150);
                 SelectObject(hdc, old_pen);
                 let _ = DeleteObject(HGDIOBJ(pen_null.0));
                 let _ = DeleteObject(HGDIOBJ(wave_brush.0));
@@ -517,7 +536,7 @@ unsafe extern "system" fn wnd_proc(
                 SetBkMode(hdc, windows::Win32::Graphics::Gdi::TRANSPARENT);
                 SetTextColor(hdc, COLORREF(0x00333333));
                 let font_close = CreateFontW(
-                    17, 0, 0, 0, FW_NORMAL.0 as i32, 0, 0, 0,
+                    20, 0, 0, 0, FW_BOLD.0 as i32, 0, 0, 0,
                     FONT_CHARSET(1), FONT_OUTPUT_PRECISION(0),
                     FONT_CLIP_PRECISION(0), FONT_QUALITY(0), 0, w!("Segoe UI")
                 );
@@ -527,39 +546,39 @@ unsafe extern "system" fn wnd_proc(
                 DrawTextW(hdc, &mut close_w, &mut close_rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
                 let _ = DeleteObject(HGDIOBJ(font_close.0));
 
-                // Icon Chú Heo Tròn trong hình tròn trắng ở Header
+                // Icon Chú Heo Tròn trong hình tròn trắng ở Header (To hơn và rõ nét)
                 let circle_brush = CreateSolidBrush(COLORREF(0x00FFFFFF));
                 let circle_pen = CreatePen(PS_SOLID, 1, COLORREF(0x00FEE2E2));
                 let _ = SelectObject(hdc, HGDIOBJ(circle_pen.0));
                 let _ = SelectObject(hdc, HGDIOBJ(circle_brush.0));
-                let _ = Ellipse(hdc, 28, 16, 78, 66);
+                let _ = Ellipse(hdc, 28, 18, 86, 76);
                 let _ = DeleteObject(HGDIOBJ(circle_pen.0));
                 let _ = DeleteObject(HGDIOBJ(circle_brush.0));
 
-                // Vẽ chú heo xinh xắn ở giữa hình tròn
-                draw_piggy_face(hdc, 53, 41, 18, true);
+                // Vẽ chú heo siêu dễ thương ở giữa hình tròn
+                draw_piggy_face(hdc, 57, 47, 22, true);
 
-                // Tiêu đề App: BURIN SMART KEY
+                // Tiêu đề App: BURIN SMART KEY (To, đậm, sắc nét)
                 SetTextColor(hdc, COLORREF(0x00FFFFFF));
                 let font_header_title = CreateFontW(
-                    21, 0, 0, 0, FW_BOLD.0 as i32, 0, 0, 0,
+                    24, 0, 0, 0, FW_BOLD.0 as i32, 0, 0, 0,
                     FONT_CHARSET(1), FONT_OUTPUT_PRECISION(0),
                     FONT_CLIP_PRECISION(0), FONT_QUALITY(0), 0, w!("Segoe UI")
                 );
                 SelectObject(hdc, HGDIOBJ(font_header_title.0));
-                let mut htitle_rect = RECT { left: 90, top: 20, right: 400, bottom: 44 };
+                let mut htitle_rect = RECT { left: 98, top: 22, right: 440, bottom: 50 };
                 let mut htitle_w = to_wide_null("BURIN SMART KEY");
                 DrawTextW(hdc, &mut htitle_w, &mut htitle_rect, DT_LEFT | DT_SINGLELINE);
 
-                // Phụ đề: Bộ gõ tiếng Việt thông minh thế hệ mới
+                // Phụ đề: Bộ gõ tiếng Việt thông minh thế hệ mới (Nâng font to rõ 16px)
                 let font_header_sub = CreateFontW(
-                    13, 0, 0, 0, FW_NORMAL.0 as i32, 0, 0, 0,
+                    16, 0, 0, 0, FW_SEMIBOLD.0 as i32, 0, 0, 0,
                     FONT_CHARSET(1), FONT_OUTPUT_PRECISION(0),
                     FONT_CLIP_PRECISION(0), FONT_QUALITY(0), 0, w!("Segoe UI")
                 );
                 SelectObject(hdc, HGDIOBJ(font_header_sub.0));
-                SetTextColor(hdc, COLORREF(0x00FBEAE8));
-                let mut hsub_rect = RECT { left: 90, top: 45, right: 420, bottom: 65 };
+                SetTextColor(hdc, COLORREF(0x00FFF5F5));
+                let mut hsub_rect = RECT { left: 98, top: 52, right: 450, bottom: 78 };
                 let mut hsub_w = to_wide_null("Bộ gõ tiếng Việt thông minh thế hệ mới");
                 DrawTextW(hdc, &mut hsub_w, &mut hsub_rect, DT_LEFT | DT_SINGLELINE);
 
@@ -567,13 +586,13 @@ unsafe extern "system" fn wnd_proc(
                 // 3. THÂN GIAO DIỆN: KIỂU GÕ & CHẾ ĐỘ
                 // ==========================================
                 let font_section = CreateFontW(
-                    14, 0, 0, 0, FW_BOLD.0 as i32, 0, 0, 0,
+                    16, 0, 0, 0, FW_BOLD.0 as i32, 0, 0, 0,
                     FONT_CHARSET(1), FONT_OUTPUT_PRECISION(0),
                     FONT_CLIP_PRECISION(0), FONT_QUALITY(0), 0, w!("Segoe UI")
                 );
                 SelectObject(hdc, HGDIOBJ(font_section.0));
                 SetTextColor(hdc, COLORREF(0x00332822)); // Màu xám đen đậm
-                let mut sec_rect = RECT { left: 32, top: 112, right: 260, bottom: 132 };
+                let mut sec_rect = RECT { left: 32, top: 120, right: 280, bottom: 142 };
                 let mut sec_w = to_wide_null("KIỂU GÕ & CHẾ ĐỘ");
                 DrawTextW(hdc, &mut sec_w, &mut sec_rect, DT_LEFT | DT_SINGLELINE);
 
@@ -586,7 +605,7 @@ unsafe extern "system" fn wnd_proc(
                 let pen_transparent = CreatePen(PS_SOLID, 1, COLORREF(0x00E2DFDE));
                 let _ = SelectObject(hdc, HGDIOBJ(pen_transparent.0));
                 let _ = SelectObject(hdc, HGDIOBJ(pill_bg_brush.0));
-                let _ = RoundRect(hdc, 30, 134, 242, 174, 38, 38);
+                let _ = RoundRect(hdc, 30, 142, 254, 186, 40, 40);
                 let _ = DeleteObject(HGDIOBJ(pen_transparent.0));
                 let _ = DeleteObject(HGDIOBJ(pill_bg_brush.0));
 
@@ -597,21 +616,21 @@ unsafe extern "system" fn wnd_proc(
                 let _ = SelectObject(hdc, HGDIOBJ(active_brush.0));
 
                 if cur_im == InputMethod::Telex {
-                    let _ = RoundRect(hdc, 32, 136, 136, 172, 34, 34);
+                    let _ = RoundRect(hdc, 32, 144, 142, 184, 36, 36);
                 } else {
-                    let _ = RoundRect(hdc, 136, 136, 240, 172, 34, 34);
+                    let _ = RoundRect(hdc, 142, 144, 252, 184, 36, 36);
                 }
                 let _ = DeleteObject(HGDIOBJ(active_pen.0));
                 let _ = DeleteObject(HGDIOBJ(active_brush.0));
 
-                // Text TELEX & VNI
+                // Text TELEX & VNI (Nâng font lên 16px to đậm)
                 let font_tab_bold = CreateFontW(
-                    14, 0, 0, 0, FW_BOLD.0 as i32, 0, 0, 0,
+                    16, 0, 0, 0, FW_BOLD.0 as i32, 0, 0, 0,
                     FONT_CHARSET(1), FONT_OUTPUT_PRECISION(0),
                     FONT_CLIP_PRECISION(0), FONT_QUALITY(0), 0, w!("Segoe UI")
                 );
                 let font_tab_normal = CreateFontW(
-                    14, 0, 0, 0, FW_NORMAL.0 as i32, 0, 0, 0,
+                    16, 0, 0, 0, FW_NORMAL.0 as i32, 0, 0, 0,
                     FONT_CHARSET(1), FONT_OUTPUT_PRECISION(0),
                     FONT_CLIP_PRECISION(0), FONT_QUALITY(0), 0, w!("Segoe UI")
                 );
@@ -642,16 +661,16 @@ unsafe extern "system" fn wnd_proc(
                     DrawTextW(hdc, &mut vni_w, &mut vni_rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
                 }
 
-                // Dòng chữ: Trạng thái: ĐANG BẬT [Tiếng Việt]
+                // Dòng chữ: Trạng thái: ĐANG BẬT [Tiếng Việt] (Nâng font 15px)
                 let font_status = CreateFontW(
-                    13, 0, 0, 0, FW_NORMAL.0 as i32, 0, 0, 0,
+                    15, 0, 0, 0, FW_SEMIBOLD.0 as i32, 0, 0, 0,
                     FONT_CHARSET(1), FONT_OUTPUT_PRECISION(0),
                     FONT_CLIP_PRECISION(0), FONT_QUALITY(0), 0, w!("Segoe UI")
                 );
                 SelectObject(hdc, HGDIOBJ(font_status.0));
                 SetTextColor(hdc, COLORREF(0x001F1F1F));
                 let status_mode_text = if is_v { "Trạng thái: ĐANG BẬT [Tiếng Việt]" } else { "Trạng thái: ĐANG TẮT [Tiếng Anh]" };
-                let mut smode_rect = RECT { left: 32, top: 180, right: 280, bottom: 200 };
+                let mut smode_rect = RECT { left: 32, top: 194, right: 300, bottom: 216 };
                 let mut smode_w = to_wide_null(status_mode_text);
                 DrawTextW(hdc, &mut smode_w, &mut smode_rect, DT_LEFT | DT_SINGLELINE);
 
@@ -662,25 +681,25 @@ unsafe extern "system" fn wnd_proc(
                     let pen_coral = CreatePen(PS_SOLID, 1, COLORREF(0x00696EEF));
                     let _ = SelectObject(hdc, HGDIOBJ(pen_coral.0));
                     let _ = SelectObject(hdc, HGDIOBJ(btn_coral.0));
-                    let _ = RoundRect(hdc, RECT_BTN_TOGGLE_VE.left, RECT_BTN_TOGGLE_VE.top, RECT_BTN_TOGGLE_VE.right, RECT_BTN_TOGGLE_VE.bottom, 38, 38);
+                    let _ = RoundRect(hdc, RECT_BTN_TOGGLE_VE.left, RECT_BTN_TOGGLE_VE.top, RECT_BTN_TOGGLE_VE.right, RECT_BTN_TOGGLE_VE.bottom, 42, 42);
                     let _ = DeleteObject(HGDIOBJ(pen_coral.0));
                     let _ = DeleteObject(HGDIOBJ(btn_coral.0));
 
                     // Vẽ chú heo nhỏ bên trong nút
-                    draw_piggy_face(hdc, RECT_BTN_TOGGLE_VE.left + 22, RECT_BTN_TOGGLE_VE.top + 20, 11, true);
+                    draw_piggy_face(hdc, RECT_BTN_TOGGLE_VE.left + 24, RECT_BTN_TOGGLE_VE.top + 22, 13, true);
 
                     // Chữ TIẾNG VIỆT (V)
                     SetTextColor(hdc, COLORREF(0x00FFFFFF));
                     SelectObject(hdc, HGDIOBJ(font_tab_bold.0));
-                    let mut btext_rect = RECT { left: RECT_BTN_TOGGLE_VE.left + 36, top: RECT_BTN_TOGGLE_VE.top, right: RECT_BTN_TOGGLE_VE.right - 8, bottom: RECT_BTN_TOGGLE_VE.bottom };
+                    let mut btext_rect = RECT { left: RECT_BTN_TOGGLE_VE.left + 38, top: RECT_BTN_TOGGLE_VE.top, right: RECT_BTN_TOGGLE_VE.right - 8, bottom: RECT_BTN_TOGGLE_VE.bottom };
                     let mut btext_w = to_wide_null("TIẾNG VIỆT (V)");
                     DrawTextW(hdc, &mut btext_w, &mut btext_rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
 
                     // Phía dưới có dòng TIẾNG ANH (E) mờ nhỏ
                     SetTextColor(hdc, COLORREF(0x00666666));
                     SelectObject(hdc, HGDIOBJ(font_status.0));
-                    draw_piggy_face(hdc, RECT_BTN_TOGGLE_VE.left + 50, 188, 7, false);
-                    let mut sub_e_rect = RECT { left: RECT_BTN_TOGGLE_VE.left + 60, top: 180, right: RECT_BTN_TOGGLE_VE.right, bottom: 200 };
+                    draw_piggy_face(hdc, RECT_BTN_TOGGLE_VE.left + 45, 202, 8, false);
+                    let mut sub_e_rect = RECT { left: RECT_BTN_TOGGLE_VE.left + 58, top: 194, right: RECT_BTN_TOGGLE_VE.right, bottom: 216 };
                     let mut sub_e_w = to_wide_null("TIẾNG ANH (E)");
                     DrawTextW(hdc, &mut sub_e_w, &mut sub_e_rect, DT_LEFT | DT_SINGLELINE);
                 } else {
@@ -689,53 +708,51 @@ unsafe extern "system" fn wnd_proc(
                     let pen_gray = CreatePen(PS_SOLID, 1, COLORREF(0x00A0A0A0));
                     let _ = SelectObject(hdc, HGDIOBJ(pen_gray.0));
                     let _ = SelectObject(hdc, HGDIOBJ(btn_gray.0));
-                    let _ = RoundRect(hdc, RECT_BTN_TOGGLE_VE.left, RECT_BTN_TOGGLE_VE.top, RECT_BTN_TOGGLE_VE.right, RECT_BTN_TOGGLE_VE.bottom, 38, 38);
+                    let _ = RoundRect(hdc, RECT_BTN_TOGGLE_VE.left, RECT_BTN_TOGGLE_VE.top, RECT_BTN_TOGGLE_VE.right, RECT_BTN_TOGGLE_VE.bottom, 42, 42);
                     let _ = DeleteObject(HGDIOBJ(pen_gray.0));
                     let _ = DeleteObject(HGDIOBJ(btn_gray.0));
 
-                    draw_piggy_face(hdc, RECT_BTN_TOGGLE_VE.left + 22, RECT_BTN_TOGGLE_VE.top + 20, 11, false);
+                    draw_piggy_face(hdc, RECT_BTN_TOGGLE_VE.left + 24, RECT_BTN_TOGGLE_VE.top + 22, 13, false);
 
                     SetTextColor(hdc, COLORREF(0x00FFFFFF));
                     SelectObject(hdc, HGDIOBJ(font_tab_bold.0));
-                    let mut btext_rect = RECT { left: RECT_BTN_TOGGLE_VE.left + 36, top: RECT_BTN_TOGGLE_VE.top, right: RECT_BTN_TOGGLE_VE.right - 8, bottom: RECT_BTN_TOGGLE_VE.bottom };
+                    let mut btext_rect = RECT { left: RECT_BTN_TOGGLE_VE.left + 38, top: RECT_BTN_TOGGLE_VE.top, right: RECT_BTN_TOGGLE_VE.right - 8, bottom: RECT_BTN_TOGGLE_VE.bottom };
                     let mut btext_w = to_wide_null("TIẾNG ANH (E)");
                     DrawTextW(hdc, &mut btext_w, &mut btext_rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
 
                     SetTextColor(hdc, COLORREF(0x00666666));
                     SelectObject(hdc, HGDIOBJ(font_status.0));
-                    draw_piggy_face(hdc, RECT_BTN_TOGGLE_VE.left + 50, 188, 7, true);
-                    let mut sub_e_rect = RECT { left: RECT_BTN_TOGGLE_VE.left + 60, top: 180, right: RECT_BTN_TOGGLE_VE.right, bottom: 200 };
+                    draw_piggy_face(hdc, RECT_BTN_TOGGLE_VE.left + 45, 202, 8, true);
+                    let mut sub_e_rect = RECT { left: RECT_BTN_TOGGLE_VE.left + 58, top: 194, right: RECT_BTN_TOGGLE_VE.right, bottom: 216 };
                     let mut sub_e_w = to_wide_null("TIẾNG VIỆT (V)");
                     DrawTextW(hdc, &mut sub_e_w, &mut sub_e_rect, DT_LEFT | DT_SINGLELINE);
                 }
 
                 // ==========================================
-                // 4. KHUNG TRẮNG CARD "PHÍM TẮT NHANH"
+                // 4. KHUNG TRẮNG CARD "PHÍM TẮT NHANH" (Mở rộng thoải mái)
                 // ==========================================
                 let card_bg = CreateSolidBrush(COLORREF(0x00FFFFFF));
                 let card_pen = CreatePen(PS_SOLID, 1, COLORREF(0x00EFE8E5));
                 let _ = SelectObject(hdc, HGDIOBJ(card_pen.0));
                 let _ = SelectObject(hdc, HGDIOBJ(card_bg.0));
-                let _ = RoundRect(hdc, 30, 212, 440, 382, 22, 22);
+                let _ = RoundRect(hdc, 30, 226, 468, 418, 22, 22);
                 let _ = DeleteObject(HGDIOBJ(card_pen.0));
                 let _ = DeleteObject(HGDIOBJ(card_bg.0));
 
-                // Tiêu đề card: ✦ Phím tắt nhanh
+                // Tiêu đề card: ✦ Phím tắt nhanh (Nâng font 17px)
                 let font_card_title = CreateFontW(
-                    15, 0, 0, 0, FW_SEMIBOLD.0 as i32, 0, 0, 0,
+                    17, 0, 0, 0, FW_BOLD.0 as i32, 0, 0, 0,
                     FONT_CHARSET(1), FONT_OUTPUT_PRECISION(0),
                     FONT_CLIP_PRECISION(0), FONT_QUALITY(0), 0, w!("Segoe UI")
                 );
                 SelectObject(hdc, HGDIOBJ(font_card_title.0));
                 SetTextColor(hdc, COLORREF(0x00111111));
-                let mut ctitle_rect = RECT { left: 48, top: 226, right: 300, bottom: 250 };
+                let mut ctitle_rect = RECT { left: 48, top: 240, right: 320, bottom: 266 };
                 let mut ctitle_w = to_wide_null("✦ Phím tắt nhanh");
                 DrawTextW(hdc, &mut ctitle_w, &mut ctitle_rect, DT_LEFT | DT_SINGLELINE);
 
                 // --- HÀNG 1: [ Ctrl ] + [ Shift ] : Bật / Tắt bộ gõ ---
-                // Helper vẽ phím bấm bàn phím nổi bật 3D
                 let draw_key_cap = |left: i32, top: i32, right: i32, bottom: i32, text: &str| {
-                    // Viền xám và shadow
                     let key_bg = CreateSolidBrush(COLORREF(0x00FAFAFA));
                     let key_pen = CreatePen(PS_SOLID, 1, COLORREF(0x00CBCBCB));
                     let _ = SelectObject(hdc, HGDIOBJ(key_pen.0));
@@ -750,54 +767,55 @@ unsafe extern "system" fn wnd_proc(
                     DrawTextW(hdc, &mut kw, &mut krect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
                 };
 
+                // Font phím bấm to 16px đậm
                 let font_key = CreateFontW(
-                    14, 0, 0, 0, FW_SEMIBOLD.0 as i32, 0, 0, 0,
+                    16, 0, 0, 0, FW_BOLD.0 as i32, 0, 0, 0,
                     FONT_CHARSET(1), FONT_OUTPUT_PRECISION(0),
                     FONT_CLIP_PRECISION(0), FONT_QUALITY(0), 0, w!("Segoe UI")
                 );
                 SelectObject(hdc, HGDIOBJ(font_key.0));
 
                 // Phím Ctrl
-                draw_key_cap(48, 258, 98, 292, "Ctrl");
+                draw_key_cap(48, 276, 104, 314, "Ctrl");
 
                 // Dấu '+'
-                let mut plus_rect = RECT { left: 102, top: 258, right: 118, bottom: 292 };
+                let mut plus_rect = RECT { left: 108, top: 276, right: 126, bottom: 314 };
                 let mut plus_w = to_wide_null("+");
                 DrawTextW(hdc, &mut plus_w, &mut plus_rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
 
                 // Phím Shift
-                draw_key_cap(122, 258, 178, 292, "Shift");
+                draw_key_cap(130, 276, 192, 314, "Shift");
 
-                // Nhãn: : Bật / Tắt bộ gõ
+                // Nhãn: : Bật / Tắt bộ gõ (Nâng font 16px to rõ ràng)
                 let font_body = CreateFontW(
-                    14, 0, 0, 0, FW_NORMAL.0 as i32, 0, 0, 0,
+                    16, 0, 0, 0, FW_NORMAL.0 as i32, 0, 0, 0,
                     FONT_CHARSET(1), FONT_OUTPUT_PRECISION(0),
                     FONT_CLIP_PRECISION(0), FONT_QUALITY(0), 0, w!("Segoe UI")
                 );
                 SelectObject(hdc, HGDIOBJ(font_body.0));
                 SetTextColor(hdc, COLORREF(0x001F1F1F));
-                let mut desc1_rect = RECT { left: 190, top: 258, right: 420, bottom: 292 };
+                let mut desc1_rect = RECT { left: 204, top: 276, right: 450, bottom: 314 };
                 let mut desc1_w = to_wide_null(": Bật / Tắt bộ gõ");
                 DrawTextW(hdc, &mut desc1_w, &mut desc1_rect, DT_LEFT | DT_VCENTER | DT_SINGLELINE);
 
                 // --- HÀNG 2: [ F9 ] : Chuyển Telex <-> VNI ---
                 SelectObject(hdc, HGDIOBJ(font_key.0));
-                draw_key_cap(48, 302, 98, 336, "F9");
+                draw_key_cap(48, 324, 104, 362, "F9");
 
                 SelectObject(hdc, HGDIOBJ(font_body.0));
-                let mut desc2_rect = RECT { left: 176, top: 302, right: 420, bottom: 336 };
+                let mut desc2_rect = RECT { left: 190, top: 324, right: 450, bottom: 362 };
                 let mut desc2_w = to_wide_null(": Chuyển Telex <-> VNI");
                 DrawTextW(hdc, &mut desc2_w, &mut desc2_rect, DT_LEFT | DT_VCENTER | DT_SINGLELINE);
 
-                // Dòng ghi chú dưới cùng của Card
+                // Dòng ghi chú dưới cùng của Card (Nâng font 15px cực kỳ dễ đọc)
                 let font_tip = CreateFontW(
-                    12, 0, 0, 0, FW_NORMAL.0 as i32, 0, 0, 0,
+                    15, 0, 0, 0, FW_NORMAL.0 as i32, 0, 0, 0,
                     FONT_CHARSET(1), FONT_OUTPUT_PRECISION(0),
                     FONT_CLIP_PRECISION(0), FONT_QUALITY(0), 0, w!("Segoe UI")
                 );
                 SelectObject(hdc, HGDIOBJ(font_tip.0));
-                SetTextColor(hdc, COLORREF(0x00444444));
-                let mut tip_rect = RECT { left: 48, top: 348, right: 430, bottom: 368 };
+                SetTextColor(hdc, COLORREF(0x004A4A4A));
+                let mut tip_rect = RECT { left: 48, top: 376, right: 460, bottom: 404 };
                 let mut tip_w = to_wide_null("Nhấp chuột trái vào icon khay hệ thống để bật/tắt nhanh");
                 DrawTextW(hdc, &mut tip_w, &mut tip_rect, DT_LEFT | DT_SINGLELINE);
 
@@ -805,29 +823,30 @@ unsafe extern "system" fn wnd_proc(
                 // 5. CHECKBOX "KHỞI ĐỘNG CÙNG WINDOWS"
                 // ==========================================
                 let is_auto = is_autostart_enabled();
-                // Vẽ ô vuông checkbox bo tròn
+                // Vẽ ô vuông checkbox bo tròn lớn hơn
                 let chk_box_brush = CreateSolidBrush(COLORREF(0x00FFFFFF));
-                let chk_box_pen = CreatePen(PS_SOLID, 1, COLORREF(0x009E9E9E));
+                let chk_box_pen = CreatePen(PS_SOLID, 1, COLORREF(0x008E8E8E));
                 let _ = SelectObject(hdc, HGDIOBJ(chk_box_pen.0));
                 let _ = SelectObject(hdc, HGDIOBJ(chk_box_brush.0));
-                let _ = RoundRect(hdc, 32, 403, 48, 419, 6, 6);
+                let _ = RoundRect(hdc, 32, 442, 52, 462, 8, 8);
                 let _ = DeleteObject(HGDIOBJ(chk_box_pen.0));
                 let _ = DeleteObject(HGDIOBJ(chk_box_brush.0));
 
                 if is_auto {
                     // Dấu tích check màu đỏ cam
-                    let font_check = CreateFontW(12, 0, 0, 0, FW_BOLD.0 as i32, 0, 0, 0, FONT_CHARSET(1), FONT_OUTPUT_PRECISION(0), FONT_CLIP_PRECISION(0), FONT_QUALITY(0), 0, w!("Segoe UI"));
+                    let font_check = CreateFontW(15, 0, 0, 0, FW_BOLD.0 as i32, 0, 0, 0, FONT_CHARSET(1), FONT_OUTPUT_PRECISION(0), FONT_CLIP_PRECISION(0), FONT_QUALITY(0), 0, w!("Segoe UI"));
                     SelectObject(hdc, HGDIOBJ(font_check.0));
                     SetTextColor(hdc, COLORREF(0x00696EEF));
-                    let mut check_mark_rect = RECT { left: 32, top: 403, right: 48, bottom: 419 };
+                    let mut check_mark_rect = RECT { left: 32, top: 442, right: 52, bottom: 462 };
                     let mut check_mark_w = to_wide_null("✔");
                     DrawTextW(hdc, &mut check_mark_w, &mut check_mark_rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
                     let _ = DeleteObject(HGDIOBJ(font_check.0));
                 }
 
+                // Nhãn "Khởi động cùng Windows" (Nâng font 16px to rõ nét)
                 SelectObject(hdc, HGDIOBJ(font_body.0));
                 SetTextColor(hdc, COLORREF(0x001F1F1F));
-                let mut chk_label_rect = RECT { left: 56, top: 400, right: 350, bottom: 422 };
+                let mut chk_label_rect = RECT { left: 60, top: 438, right: 400, bottom: 466 };
                 let mut chk_label_w = to_wide_null("Khởi động cùng Windows");
                 DrawTextW(hdc, &mut chk_label_w, &mut chk_label_rect, DT_LEFT | DT_VCENTER | DT_SINGLELINE);
 
@@ -838,15 +857,21 @@ unsafe extern "system" fn wnd_proc(
                 let btn_min_pen = CreatePen(PS_SOLID, 1, COLORREF(0x008E98F4)); // viền hồng san hô
                 let _ = SelectObject(hdc, HGDIOBJ(btn_min_pen.0));
                 let _ = SelectObject(hdc, HGDIOBJ(btn_min_bg.0));
-                let _ = RoundRect(hdc, RECT_BTN_MINIMIZE.left, RECT_BTN_MINIMIZE.top, RECT_BTN_MINIMIZE.right, RECT_BTN_MINIMIZE.bottom, 16, 16);
+                let _ = RoundRect(hdc, RECT_BTN_MINIMIZE.left, RECT_BTN_MINIMIZE.top, RECT_BTN_MINIMIZE.right, RECT_BTN_MINIMIZE.bottom, 20, 20);
                 let _ = DeleteObject(HGDIOBJ(btn_min_pen.0));
                 let _ = DeleteObject(HGDIOBJ(btn_min_bg.0));
 
-                SelectObject(hdc, HGDIOBJ(font_card_title.0));
+                let font_btn_min = CreateFontW(
+                    17, 0, 0, 0, FW_SEMIBOLD.0 as i32, 0, 0, 0,
+                    FONT_CHARSET(1), FONT_OUTPUT_PRECISION(0),
+                    FONT_CLIP_PRECISION(0), FONT_QUALITY(0), 0, w!("Segoe UI")
+                );
+                SelectObject(hdc, HGDIOBJ(font_btn_min.0));
                 SetTextColor(hdc, COLORREF(0x001A1A1A));
                 let mut bmin_rect = RECT_BTN_MINIMIZE;
                 let mut bmin_w = to_wide_null("-- Thu nhỏ xuống khay hệ thống");
                 DrawTextW(hdc, &mut bmin_w, &mut bmin_rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+                let _ = DeleteObject(HGDIOBJ(font_btn_min.0));
 
                 // Dọn dẹp fonts
                 SelectObject(hdc, old_font);
