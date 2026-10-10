@@ -3,6 +3,7 @@ pub mod dictionary;
 pub mod telex;
 pub mod windows_hook;
 pub mod ui;
+pub mod tray_icons;
 
 use phonology::{is_impossible_vietnamese_word, is_valid_vietnamese_syllable};
 use dictionary::{is_english_word, is_english_prefix};

@@ -11,10 +11,11 @@ use vnkey_engine::InputMethod;
 use windows::core::{w, PCWSTR};
 use windows::Win32::Foundation::{COLORREF, HWND, LPARAM, LRESULT, POINT, RECT, WPARAM};
 use windows::Win32::Graphics::Gdi::{
-    CreateCompatibleBitmap, CreateCompatibleDC, CreateFontW, CreatePen, CreateSolidBrush,
-    DeleteDC, DeleteObject, DrawTextW, Ellipse, FillRect, GetDC, GetStockObject,
-    InvalidateRect, ReleaseDC, RoundRect, SelectObject, SetBkMode, SetTextColor,
-    DT_CENTER, DT_LEFT, DT_SINGLELINE, DT_VCENTER, FONT_CHARSET, FONT_CLIP_PRECISION,
+    CreateCompatibleBitmap, CreateCompatibleDC, CreateDIBSection, CreateFontW, CreatePen,
+    CreateSolidBrush, DeleteDC, DeleteObject, DrawTextW, Ellipse, FillRect, GetDC,
+    GetStockObject, InvalidateRect, ReleaseDC, RoundRect, SelectObject, SetBkMode,
+    SetTextColor, BITMAPINFO, BITMAPINFOHEADER, BI_RGB, DIB_RGB_COLORS, DT_CENTER,
+    DT_LEFT, DT_SINGLELINE, DT_VCENTER, FONT_CHARSET, FONT_CLIP_PRECISION,
     FONT_OUTPUT_PRECISION, FONT_QUALITY, FW_BOLD, FW_NORMAL, FW_SEMIBOLD, HBRUSH, HGDIOBJ,
     HPEN, PS_SOLID, WHITE_BRUSH,
 };
@@ -191,38 +192,91 @@ unsafe fn draw_piggy_face(hdc: windows::Win32::Graphics::Gdi::HDC, cx: i32, cy: 
     let _ = DeleteObject(HGDIOBJ(brush_white.0));
 }
 
-/// Vẽ icon khay hệ thống (Tray Icon)
+/// Tạo Icon khay hệ thống (Tray Icon) 32x32 sắc nét với kênh Alpha 32-bit hoàn hảo
 unsafe fn create_piggy_icon(is_v: bool) -> windows::Win32::UI::WindowsAndMessaging::HICON {
-    let size = 32;
-    let hdc_screen = unsafe { GetDC(None) };
-    let hdc = unsafe { CreateCompatibleDC(Some(hdc_screen)) };
-    let hbm_color = unsafe { CreateCompatibleBitmap(hdc_screen, size, size) };
-    let hbm_mask = unsafe { CreateCompatibleBitmap(hdc_screen, size, size) };
+    use crate::tray_icons::{TRAY_V_32_DATA, TRAY_E_32_DATA, TRAY_V_32_W, TRAY_V_32_H};
 
-    // 1. Tạo mask (trong suốt nền ngoài hình elip chú heo)
-    let old_bmp = unsafe { SelectObject(hdc, HGDIOBJ(hbm_mask.0)) };
-    let black_brush = unsafe { CreateSolidBrush(COLORREF(0x00000000)) };
-    let white_brush = unsafe { CreateSolidBrush(COLORREF(0x00FFFFFF)) };
-    let rect_all = RECT { left: 0, top: 0, right: size, bottom: size };
-    unsafe { FillRect(hdc, &rect_all, white_brush) };
+    let w = TRAY_V_32_W;
+    let h = TRAY_V_32_H;
+    let raw_rgba = if is_v { TRAY_V_32_DATA } else { TRAY_E_32_DATA };
 
-    unsafe { SelectObject(hdc, HGDIOBJ(black_brush.0)) };
-    unsafe { Ellipse(hdc, 2, 1, 13, 13) };
-    unsafe { Ellipse(hdc, 19, 1, 30, 13) };
-    unsafe { Ellipse(hdc, 1, 5, 31, 31) };
+    let hdc_screen = GetDC(None);
 
-    // 2. Vẽ màu chú heo Burin
-    unsafe { SelectObject(hdc, HGDIOBJ(hbm_color.0)) };
-    unsafe { FillRect(hdc, &rect_all, black_brush) };
-    unsafe { draw_piggy_face(hdc, 16, 17, 14, is_v) };
+    // Chuẩn bị BITMAPINFO cho 32-bit ARGB (Top-down DIB: height âm)
+    let mut bmi = BITMAPINFO {
+        bmiHeader: BITMAPINFOHEADER {
+            biSize: std::mem::size_of::<BITMAPINFOHEADER>() as u32,
+            biWidth: w,
+            biHeight: -h, // Top-down
+            biPlanes: 1,
+            biBitCount: 32,
+            biCompression: BI_RGB.0,
+            biSizeImage: (w * h * 4) as u32,
+            biXPelsPerMeter: 0,
+            biYPelsPerMeter: 0,
+            biClrUsed: 0,
+            biClrImportant: 0,
+        },
+        bmiColors: [windows::Win32::Graphics::Gdi::RGBQUAD::default(); 1],
+    };
 
-    unsafe { SelectObject(hdc, old_bmp) };
-    unsafe {
-        let _ = DeleteObject(HGDIOBJ(black_brush.0));
-        let _ = DeleteObject(HGDIOBJ(white_brush.0));
-        let _ = DeleteDC(hdc);
-        ReleaseDC(None, hdc_screen);
+    let mut bits_ptr: *mut std::ffi::c_void = std::ptr::null_mut();
+    let hbm_color = CreateDIBSection(
+        Some(hdc_screen),
+        &bmi,
+        DIB_RGB_COLORS,
+        &mut bits_ptr,
+        None,
+        0,
+    ).unwrap();
+
+    // Điền dữ liệu điểm ảnh ARGB premultiplied
+    if !bits_ptr.is_null() {
+        let dest = std::slice::from_raw_parts_mut(bits_ptr as *mut u8, (w * h * 4) as usize);
+        for i in 0..(w * h) as usize {
+            let r = raw_rgba[i * 4] as u32;
+            let g = raw_rgba[i * 4 + 1] as u32;
+            let b = raw_rgba[i * 4 + 2] as u32;
+            let a = raw_rgba[i * 4 + 3] as u32;
+
+            // Premultiply alpha cho Windows DIB
+            let pr = ((r * a + 127) / 255) as u8;
+            let pg = ((g * a + 127) / 255) as u8;
+            let pb = ((b * a + 127) / 255) as u8;
+
+            dest[i * 4 + 0] = pb; // Blue
+            dest[i * 4 + 1] = pg; // Green
+            dest[i * 4 + 2] = pr; // Red
+            dest[i * 4 + 3] = a as u8; // Alpha
+        }
     }
+
+    // Tạo monochrome mask (1-bit mask: 0 cho vùng có vẽ, 1 cho vùng trong suốt)
+    let hbm_mask = CreateCompatibleBitmap(hdc_screen, w, h);
+    let hdc_mem = CreateCompatibleDC(Some(hdc_screen));
+    let old_bmp = SelectObject(hdc_mem, HGDIOBJ(hbm_mask.0));
+
+    let black_brush = CreateSolidBrush(COLORREF(0x00000000));
+    let white_brush = CreateSolidBrush(COLORREF(0x00FFFFFF));
+    let rect_all = RECT { left: 0, top: 0, right: w, bottom: h };
+    FillRect(hdc_mem, &rect_all, white_brush);
+
+    // Với các pixel có alpha > 0, tô màu đen trên mask để Windows hiển thị màu ARGB
+    for y in 0..h {
+        for x in 0..w {
+            let idx = ((y * w + x) * 4 + 3) as usize;
+            if raw_rgba[idx] > 30 {
+                let pixel_rect = RECT { left: x, top: y, right: x + 1, bottom: y + 1 };
+                FillRect(hdc_mem, &pixel_rect, black_brush);
+            }
+        }
+    }
+
+    SelectObject(hdc_mem, old_bmp);
+    let _ = DeleteObject(HGDIOBJ(black_brush.0));
+    let _ = DeleteObject(HGDIOBJ(white_brush.0));
+    let _ = DeleteDC(hdc_mem);
+    ReleaseDC(None, hdc_screen);
 
     let mut icon_info = ICONINFO {
         fIcon: windows::core::BOOL(1),
@@ -232,11 +286,10 @@ unsafe fn create_piggy_icon(is_v: bool) -> windows::Win32::UI::WindowsAndMessagi
         hbmColor: hbm_color,
     };
 
-    let hicon = unsafe { CreateIconIndirect(&mut icon_info).unwrap_or_default() };
-    unsafe {
-        let _ = DeleteObject(HGDIOBJ(hbm_color.0));
-        let _ = DeleteObject(HGDIOBJ(hbm_mask.0));
-    }
+    let hicon = CreateIconIndirect(&mut icon_info).unwrap_or_default();
+
+    let _ = DeleteObject(HGDIOBJ(hbm_color.0));
+    let _ = DeleteObject(HGDIOBJ(hbm_mask.0));
 
     hicon
 }
