@@ -507,6 +507,138 @@
             justify-content: space-between;
         }
 
+        /* Donate Section */
+        .donate-section {
+            background: #FFFFFF;
+            border-radius: 30px;
+            max-width: 1200px;
+            margin: 0 auto 80px;
+            padding: 50px 40px;
+            border: 1px solid var(--card-border);
+            box-shadow: var(--shadow-sm);
+            text-align: center;
+        }
+
+        .donate-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #FFF1F2;
+            color: #E11D48;
+            padding: 6px 16px;
+            border-radius: 50px;
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .donate-section h2 {
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: -0.8px;
+            margin-bottom: 12px;
+        }
+
+        .donate-section p.subtitle {
+            color: var(--gray-sub);
+            font-size: 16px;
+            max-width: 620px;
+            margin: 0 auto 36px;
+            line-height: 1.6;
+        }
+
+        .donate-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            max-width: 720px;
+            margin: 0 auto;
+        }
+
+        .donate-card {
+            background: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            border-radius: 20px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .donate-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--primary);
+            box-shadow: var(--shadow-md);
+        }
+
+        .donate-card-title {
+            font-size: 16px;
+            font-weight: 800;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .qr-frame {
+            width: 170px;
+            height: 170px;
+            background: #FFFFFF;
+            border: 2px dashed #CBD5E1;
+            border-radius: 14px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+            color: #94A3B8;
+            font-size: 12px;
+            font-weight: 600;
+            text-align: center;
+            padding: 10px;
+            cursor: pointer;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .qr-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 10px;
+        }
+
+        .donate-info {
+            width: 100%;
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-radius: 12px;
+            padding: 12px;
+            font-size: 13px;
+            text-align: left;
+        }
+
+        .donate-info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+
+        .donate-info-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .donate-info-label {
+            color: #64748B;
+        }
+
+        .donate-info-val {
+            font-weight: 700;
+            color: var(--dark);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
         /* CTA Banner */
         .cta-banner {
             max-width: 1200px;
@@ -603,6 +735,7 @@
         <div class="nav-links">
             <a href="#features" class="nav-link">Tính năng</a>
             <a href="#comparison" class="nav-link">So sánh</a>
+            <a href="#donate" class="nav-link">☕ Mời cà phê</a>
             <a href="https://github.com/vohoaidanh/BurinSmartKey" target="_blank" class="github-btn">
                 <svg height="20" width="20" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
                 GitHub
@@ -732,7 +865,7 @@
         </div>
         <div class="comp-grid">
             <div class="comp-card bad">
-                <div class="comp-title">❌ Bộ gõ truyền thống</div>
+                <div class="comp-title">❌ Bộ gõ Telex truyền thống</div>
                 <div class="code-box">
                     <span>Gõ "worker"</span>
                     <strong style="color: #EF4444;">&rarr; ửokẻ</strong>
@@ -751,6 +884,73 @@
                 <div class="code-box">
                     <span>Gõ "password"</span>
                     <strong style="color: #16A34A;">&rarr; password (Chính xác)</strong>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Donate Section (Mời ly cà phê) -->
+    <section class="donate-section" id="donate">
+        <div class="donate-badge">☕ Tiếp thêm năng lượng</div>
+        <h2>Mời Tác Giả Một Ly Cà Phê Nhé!</h2>
+        <p class="subtitle">Burin Smart Key là dự án hoàn toàn miễn phí và mã nguồn mở. Nếu bộ gõ giúp bạn làm việc nhanh hơn và đỡ bực mình vì gõ nhầm, bạn có thể ủng hộ một ly cà phê ấm lòng để mình duy trì và nâng cấp thêm nhiều tính năng mới nha. Cảm ơn bạn rất nhiều! 🥰</p>
+        
+        <div class="donate-grid">
+            <!-- Chuyển khoản ngân hàng -->
+            <div class="donate-card">
+                <div class="donate-card-title">
+                    <span>🏦 Chuyển Khoản Ngân Hàng</span>
+                </div>
+                <div class="qr-frame">
+                    <img src="qr_bank.png" alt="Mã QR Ngân Hàng" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div style="display: none; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
+                        <span style="font-size: 32px; margin-bottom: 6px;">📲</span>
+                        <span>Quét mã VietQR</span>
+                        <small style="font-size: 10px; color: #94A3B8; margin-top: 4px;">(Thêm ảnh qr_bank.png)</small>
+                    </div>
+                </div>
+                <div class="donate-info">
+                    <div class="donate-info-row">
+                        <span class="donate-info-label">Ngân hàng:</span>
+                        <span class="donate-info-val">MB Bank / Vietcombank</span>
+                    </div>
+                    <div class="donate-info-row">
+                        <span class="donate-info-label">Số tài khoản:</span>
+                        <span class="donate-info-val">090xxxxxxx</span>
+                    </div>
+                    <div class="donate-info-row">
+                        <span class="donate-info-label">Chủ tài khoản:</span>
+                        <span class="donate-info-val">VÕ HOÀI DANH</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ví MoMo -->
+            <div class="donate-card">
+                <div class="donate-card-title">
+                    <span>🌸 Ví Điện Tử MoMo</span>
+                </div>
+                <div class="qr-frame">
+                    <img src="qr_momo.png" alt="Mã QR MoMo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div style="display: none; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
+                        <span style="font-size: 32px; margin-bottom: 6px;">👛</span>
+                        <span>Quét mã MoMo</span>
+                        <small style="font-size: 10px; color: #94A3B8; margin-top: 4px;">(Thêm ảnh qr_momo.png)</small>
+                    </div>
+                </div>
+                <div class="donate-info">
+                    <div class="donate-info-row">
+                        <span class="donate-info-label">Ví:</span>
+                        <span class="donate-info-val">MoMo</span>
+                    </div>
+                    <div class="donate-info-row">
+                        <span class="donate-info-label">Số điện thoại:</span>
+                        <span class="donate-info-val">090xxxxxxx</span>
+                    </div>
+                    <div class="donate-info-row">
+                        <span class="donate-info-label">Người nhận:</span>
+                        <span class="donate-info-val">VÕ HOÀI DANH</span>
+                    </div>
                 </div>
             </div>
         </div>
