@@ -28,10 +28,6 @@
    * 🔘 **Mặt heo XÁM**: Đang TẮT gõ tiếng Việt (chế độ tiếng Anh).
    * Click chuột trái vào icon để đổi nhanh trạng thái. Click chuột phải để mở menu tính năng.
 
-5. **Bộ cài đặt chuyên nghiệp**:
-   * Đóng gói bằng **Inno Setup**, hỗ trợ gỡ cài đặt (Uninstall) hoàn chỉnh trong Windows Control Panel & Settings.
-   * Chạy nền hoàn toàn không hiện cửa sổ terminal đen.
-
 ---
 
 ## 🚀 Cài đặt & Sử dụng
