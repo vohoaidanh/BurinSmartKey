@@ -1,0 +1,14 @@
+# Rust build artifacts
+target/
+**/target/
+
+# System / Temporary files
+*.log
+*.tmp
+found.txt
+
+# OS generated files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/

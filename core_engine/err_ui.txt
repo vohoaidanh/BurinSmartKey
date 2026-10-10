@@ -1,0 +1,476 @@
+    Checking windows v0.60.0
+    Checking core_engine v0.1.0 (D:\PROJECT\smart-vietnamese-ime\core_engine)
+error[E0432]: unresolved imports `windows::Win32::UI::WindowsAndMessaging::BST_CHECKED`, `windows::Win32::UI::WindowsAndMessaging::BST_UNCHECKED`
+  --> src\ui.rs:35:31
+   |
+35 |     BM_GETCHECK, BM_SETCHECK, BST_CHECKED, BST_UNCHECKED, CS_HREDRAW, CS_VREDRAW,
+   |                               ^^^^^^^^^^^  ^^^^^^^^^^^^^ no `BST_UNCHECKED` in `Win32::UI::WindowsAndMessaging`
+   |                               |
+   |                               no `BST_CHECKED` in `Win32::UI::WindowsAndMessaging`
+   |
+help: a similar name exists in the module
+   |
+35 -     BM_GETCHECK, BM_SETCHECK, BST_CHECKED, BST_UNCHECKED, CS_HREDRAW, CS_VREDRAW,
+35 +     BM_GETCHECK, BM_SETCHECK, MFS_CHECKED, BST_UNCHECKED, CS_HREDRAW, CS_VREDRAW,
+   |
+help: a similar name exists in the module
+   |
+35 -     BM_GETCHECK, BM_SETCHECK, BST_CHECKED, BST_UNCHECKED, CS_HREDRAW, CS_VREDRAW,
+35 +     BM_GETCHECK, BM_SETCHECK, BST_CHECKED, MFS_UNCHECKED, CS_HREDRAW, CS_VREDRAW,
+   |
+
+error[E0425]: cannot find value `DT_LEFT` in this scope
+   --> src\ui.rs:449:59
+    |
+449 |             DrawTextW(hdc, &mut title_w, &mut title_rect, DT_LEFT | DT_SINGLELINE);
+    |                                                           ^^^^^^^ not found in this scope
+
+error[E0425]: cannot find value `DT_LEFT` in this scope
+   --> src\ui.rs:461:55
+    |
+461 |             DrawTextW(hdc, &mut sub_w, &mut sub_rect, DT_LEFT | DT_SINGLELINE);
+    |                                                       ^^^^^^^ not found in this scope
+
+error[E0425]: cannot find value `DT_LEFT` in this scope
+   --> src\ui.rs:468:59
+    |
+468 |             DrawTextW(hdc, &mut label_w, &mut label_rect, DT_LEFT | DT_SINGLELINE);
+    |                                                           ^^^^^^^ not found in this scope
+
+error[E0425]: cannot find value `DT_LEFT` in this scope
+   --> src\ui.rs:486:61
+    |
+486 |             DrawTextW(hdc, &mut status_w, &mut status_rect, DT_LEFT | DT_SINGLELINE);
+    |                                                             ^^^^^^^ not found in this scope
+
+error[E0425]: cannot find value `DT_LEFT` in this scope
+   --> src\ui.rs:497:59
+    |
+497 |             DrawTextW(hdc, &mut feat1_w, &mut feat1_rect, DT_LEFT | DT_SINGLELINE);
+    |                                                           ^^^^^^^ not found in this scope
+
+error[E0425]: cannot find value `DT_LEFT` in this scope
+   --> src\ui.rs:501:59
+    |
+501 |             DrawTextW(hdc, &mut feat2_w, &mut feat2_rect, DT_LEFT | DT_SINGLELINE);
+    |                                                           ^^^^^^^ not found in this scope
+
+error[E0425]: cannot find value `DT_LEFT` in this scope
+   --> src\ui.rs:505:59
+    |
+505 |             DrawTextW(hdc, &mut feat3_w, &mut feat3_rect, DT_LEFT | DT_SINGLELINE);
+    |                                                           ^^^^^^^ not found in this scope
+
+warning: unused import: `SetBkColor`
+  --> src\ui.rs:17:46
+   |
+17 |     InvalidateRect, ReleaseDC, SelectObject, SetBkColor, SetBkMode, SetTextColor,
+   |                                              ^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused imports: `DestroyIcon`, `IDI_APPLICATION`, and `LoadIconW`
+  --> src\ui.rs:32:5
+   |
+32 |     DestroyIcon, DestroyMenu, DestroyWindow, DispatchMessageW, GetCursorPos,
+   |     ^^^^^^^^^^^
+33 |     GetMessageW, GetSystemMetrics, ICONINFO, LoadCursorW, LoadIconW, PostQuitMessage,
+   |                                                           ^^^^^^^^^
+...
+36 |     HMENU, IDC_ARROW, IDI_APPLICATION, MF_CHECKED, MF_SEPARATOR, MF_STRING,
+   |                       ^^^^^^^^^^^^^^^
+
+warning: unused import: `toggle_input_method`
+  --> src\ui.rs:43:79
+   |
+43 | use crate::windows_hook::{get_current_method, is_viet_mode, set_input_method, toggle_input_method, toggle_viet_mode};
+   |                                                                               ^^^^^^^^^^^^^^^^^^^
+
+error[E0277]: `*mut c_void` cannot be sent between threads safely
+    --> src\ui.rs:59:26
+     |
+  59 | static CHECKBOX_AUTORUN: Mutex<Option<HWND>> = Mutex::new(None);
+     |                          ^^^^^^^^^^^^^^^^^^^ `*mut c_void` cannot be sent between threads safely
+     |
+     = help: within `Option<HWND>`, the trait `Send` is not implemented for `*mut c_void`
+note: required because it appears within the type `HWND`
+    --> C:\Users\danhv\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\windows-0.60.0\src\Windows\Win32\Foundation\mod.rs:5695:12
+     |
+5695 | pub struct HWND(pub *mut core::ffi::c_void);
+     |            ^^^^
+note: required because it appears within the type `Option<HWND>`
+    --> /rustc/b940084d7eb6a299eb4bfeb8e34901bc051e7ac4/library\core\src\option.rs:598:9
+     = note: required for `std::sync::Mutex<Option<HWND>>` to implement `Sync`
+     = note: shared static variables must have a type that implements `Sync`
+
+error[E0308]: mismatched types
+   --> src\ui.rs:66:53
+    |
+ 66 |         if RegOpenKeyExW(HKEY_CURRENT_USER, subkey, 0, KEY_READ, &mut hkey).is_ok() {
+    |            -------------                            ^ expected `Option<u32>`, found integer
+    |            |
+    |            arguments to this function are incorrect
+    |
+    = note: expected enum `Option<u32>`
+               found type `{integer}`
+note: function defined here
+   --> C:\Users\danhv\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\windows-0.60.0\src\Windows\Win32\System\Registry\mod.rs:376:15
+    |
+376 | pub unsafe fn RegOpenKeyExW<P1>(hkey: HKEY, lpsubkey: P1, uloptions: Option<u32>, samdesired: REG_SAM_FLAGS, phkresult: *mut HKEY) ...
+    |               ^^^^^^^^^^^^^
+help: try wrapping the expression in `Some`
+    |
+ 66 |         if RegOpenKeyExW(HKEY_CURRENT_USER, subkey, Some(0), KEY_READ, &mut hkey).is_ok() {
+    |                                                     +++++ +
+
+error[E0308]: mismatched types
+   --> src\ui.rs:82:53
+    |
+ 82 |         if RegOpenKeyExW(HKEY_CURRENT_USER, subkey, 0, KEY_WRITE, &mut hkey).is_ok() {
+    |            -------------                            ^ expected `Option<u32>`, found integer
+    |            |
+    |            arguments to this function are incorrect
+    |
+    = note: expected enum `Option<u32>`
+               found type `{integer}`
+note: function defined here
+   --> C:\Users\danhv\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\windows-0.60.0\src\Windows\Win32\System\Registry\mod.rs:376:15
+    |
+376 | pub unsafe fn RegOpenKeyExW<P1>(hkey: HKEY, lpsubkey: P1, uloptions: Option<u32>, samdesired: REG_SAM_FLAGS, phkresult: *mut HKEY) ...
+    |               ^^^^^^^^^^^^^
+help: try wrapping the expression in `Some`
+    |
+ 82 |         if RegOpenKeyExW(HKEY_CURRENT_USER, subkey, Some(0), KEY_WRITE, &mut hkey).is_ok() {
+    |                                                     +++++ +
+
+error[E0308]: mismatched types
+   --> src\ui.rs:89:62
+    |
+ 89 |                     let _ = RegSetValueExW(hkey, value_name, 0, REG_SZ, Some(bytes));
+    |                             --------------                   ^ expected `Option<u32>`, found integer
+    |                             |
+    |                             arguments to this function are incorrect
+    |
+    = note: expected enum `Option<u32>`
+               found type `{integer}`
+note: function defined here
+   --> C:\Users\danhv\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\windows-0.60.0\src\Windows\Win32\System\Registry\mod.rs:626:15
+    |
+626 | pub unsafe fn RegSetValueExW<P1>(hkey: HKEY, lpvaluename: P1, reserved: Option<u32>, dwtype: REG_VALUE_TYPE, lpdata: Option<&[u8]>)...
+    |               ^^^^^^^^^^^^^^
+help: try wrapping the expression in `Some`
+    |
+ 89 |                     let _ = RegSetValueExW(hkey, value_name, Some(0), REG_SZ, Some(bytes));
+    |                                                              +++++ +
+
+error[E0308]: mismatched types
+   --> src\ui.rs:105:34
+    |
+105 |     let hdc = CreateCompatibleDC(hdc_screen);
+    |               ------------------ ^^^^^^^^^^ expected `Option<HDC>`, found `HDC`
+    |               |
+    |               arguments to this function are incorrect
+    |
+    = note: expected enum `Option<HDC>`
+             found struct `HDC`
+note: function defined here
+   --> C:\Users\danhv\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\windows-0.60.0\src\Windows\Win32\Graphics\Gdi\mod.rs:207:15
+    |
+207 | pub unsafe fn CreateCompatibleDC(hdc: Option<HDC>) -> HDC {
+    |               ^^^^^^^^^^^^^^^^^^
+help: try wrapping the expression in `Some`
+    |
+105 |     let hdc = CreateCompatibleDC(Some(hdc_screen));
+    |                                  +++++          +
+
+error[E0308]: arguments to this function are incorrect
+    --> src\ui.rs:400:13
+     |
+ 400 |             SendMessageW(chk_hwnd, BM_SETCHECK, WPARAM(check_state.0 as _), LPARAM(0));
+     |             ^^^^^^^^^^^^
+     |
+note: expected `Option<WPARAM>`, found `WPARAM`
+    --> src\ui.rs:400:49
+     |
+ 400 |             SendMessageW(chk_hwnd, BM_SETCHECK, WPARAM(check_state.0 as _), LPARAM(0));
+     |                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^
+     = note: expected enum `Option<WPARAM>`
+              found struct `WPARAM`
+note: expected `Option<LPARAM>`, found `LPARAM`
+    --> src\ui.rs:400:77
+     |
+ 400 |             SendMessageW(chk_hwnd, BM_SETCHECK, WPARAM(check_state.0 as _), LPARAM(0));
+     |                                                                             ^^^^^^^^^
+     = note: expected enum `Option<LPARAM>`
+              found struct `LPARAM`
+note: function defined here
+    --> C:\Users\danhv\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\windows-0.60.0\src\Windows\Win32\UI\WindowsAndMessaging\mod.rs:2044:15
+     |
+2044 | pub unsafe fn SendMessageW(hwnd: super::super::Foundation::HWND, msg: u32, wparam: Option<super::super::Foundation::WPARAM>, lpara...
+     |               ^^^^^^^^^^^^
+help: try wrapping the expression in `Some`
+     |
+ 400 |             SendMessageW(chk_hwnd, BM_SETCHECK, Some(WPARAM(check_state.0 as _)), LPARAM(0));
+     |                                                 +++++                          +
+help: try wrapping the expression in `Some`
+     |
+ 400 |             SendMessageW(chk_hwnd, BM_SETCHECK, WPARAM(check_state.0 as _), Some(LPARAM(0)));
+     |                                                                             +++++         +
+
+error[E0308]: arguments to this function are incorrect
+    --> src\ui.rs:534:43
+     |
+ 534 | ...                   let checked = SendMessageW(chk_hwnd, BM_GETCHECK, WPARAM(0), LPARAM(0)).0 == BST_CHECKED.0 as isize;
+     |                                     ^^^^^^^^^^^^
+     |
+note: expected `Option<WPARAM>`, found `WPARAM`
+    --> src\ui.rs:534:79
+     |
+ 534 | ...                   let checked = SendMessageW(chk_hwnd, BM_GETCHECK, WPARAM(0), LPARAM(0)).0 == BST_CHECKED.0 as isize;
+     |                                                                         ^^^^^^^^^
+     = note: expected enum `Option<WPARAM>`
+              found struct `WPARAM`
+note: expected `Option<LPARAM>`, found `LPARAM`
+    --> src\ui.rs:534:90
+     |
+ 534 | ...                   let checked = SendMessageW(chk_hwnd, BM_GETCHECK, WPARAM(0), LPARAM(0)).0 == BST_CHECKED.0 as isize;
+     |                                                                                    ^^^^^^^^^
+     = note: expected enum `Option<LPARAM>`
+              found struct `LPARAM`
+note: function defined here
+    --> C:\Users\danhv\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\windows-0.60.0\src\Windows\Win32\UI\WindowsAndMessaging\mod.rs:2044:15
+     |
+2044 | pub unsafe fn SendMessageW(hwnd: super::super::Foundation::HWND, msg: u32, wparam: Option<super::super::Foundation::WPARAM>, lpara...
+     |               ^^^^^^^^^^^^
+help: try wrapping the expression in `Some`
+     |
+ 534 |                             let checked = SendMessageW(chk_hwnd, BM_GETCHECK, Some(WPARAM(0)), LPARAM(0)).0 == BST_CHECKED.0 as isize;
+     |                                                                               +++++         +
+help: try wrapping the expression in `Some`
+     |
+ 534 |                             let checked = SendMessageW(chk_hwnd, BM_GETCHECK, WPARAM(0), Some(LPARAM(0))).0 == BST_CHECKED.0 as isize;
+     |                                                                                          +++++         +
+
+error[E0308]: arguments to this function are incorrect
+    --> src\ui.rs:545:29
+     |
+ 545 | ...                   SendMessageW(chk_hwnd, BM_SETCHECK, WPARAM(state.0 as _), LPARAM(0));
+     |                       ^^^^^^^^^^^^
+     |
+note: expected `Option<WPARAM>`, found `WPARAM`
+    --> src\ui.rs:545:65
+     |
+ 545 | ...                   SendMessageW(chk_hwnd, BM_SETCHECK, WPARAM(state.0 as _), LPARAM(0));
+     |                                                           ^^^^^^^^^^^^^^^^^^^^
+     = note: expected enum `Option<WPARAM>`
+              found struct `WPARAM`
+note: expected `Option<LPARAM>`, found `LPARAM`
+    --> src\ui.rs:545:87
+     |
+ 545 | ...                   SendMessageW(chk_hwnd, BM_SETCHECK, WPARAM(state.0 as _), LPARAM(0));
+     |                                                                                 ^^^^^^^^^
+     = note: expected enum `Option<LPARAM>`
+              found struct `LPARAM`
+note: function defined here
+    --> C:\Users\danhv\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\windows-0.60.0\src\Windows\Win32\UI\WindowsAndMessaging\mod.rs:2044:15
+     |
+2044 | pub unsafe fn SendMessageW(hwnd: super::super::Foundation::HWND, msg: u32, wparam: Option<super::super::Foundation::WPARAM>, lpara...
+     |               ^^^^^^^^^^^^
+help: try wrapping the expression in `Some`
+     |
+ 545 |                             SendMessageW(chk_hwnd, BM_SETCHECK, Some(WPARAM(state.0 as _)), LPARAM(0));
+     |                                                                 +++++                    +
+help: try wrapping the expression in `Some`
+     |
+ 545 |                             SendMessageW(chk_hwnd, BM_SETCHECK, WPARAM(state.0 as _), Some(LPARAM(0)));
+     |                                                                                       +++++         +
+
+warning[E0133]: call to unsafe function `ui::create_piggy_icon` is unsafe and requires unsafe block
+   --> src\ui.rs:262:17
+    |
+262 |     nid.hIcon = create_piggy_icon(is_v);
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^ call to unsafe function
+    |
+    = note: consult the function's documentation for information on how to avoid undefined behavior
+note: an unsafe function restricts its caller, but its body is safe by default
+   --> src\ui.rs:255:1
+    |
+255 | unsafe fn update_tray_icon(hwnd: HWND, is_v: bool, is_add: bool) {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    = note: for more information, see <https://doc.rust-lang.org/edition-guide/rust-2024/unsafe-op-in-unsafe-fn.html>
+    = note: `#[warn(unsafe_op_in_unsafe_fn)]` (part of `#[warn(rust_2024_compatibility)]`) on by default
+
+warning[E0133]: call to unsafe function `windows::Win32::UI::Shell::Shell_NotifyIconW` is unsafe and requires unsafe block
+   --> src\ui.rs:270:13
+    |
+270 |     let _ = Shell_NotifyIconW(action, &nid);
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ call to unsafe function
+    |
+    = note: consult the function's documentation for information on how to avoid undefined behavior
+    = note: for more information, see <https://doc.rust-lang.org/edition-guide/rust-2024/unsafe-op-in-unsafe-fn.html>
+
+warning[E0133]: call to unsafe function `windows::Win32::UI::Shell::Shell_NotifyIconW` is unsafe and requires unsafe block
+   --> src\ui.rs:279:13
+    |
+279 |     let _ = Shell_NotifyIconW(NIM_DELETE, &nid);
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ call to unsafe function
+    |
+    = note: consult the function's documentation for information on how to avoid undefined behavior
+note: an unsafe function restricts its caller, but its body is safe by default
+   --> src\ui.rs:274:1
+    |
+274 | unsafe fn remove_tray_icon(hwnd: HWND) {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    = note: for more information, see <https://doc.rust-lang.org/edition-guide/rust-2024/unsafe-op-in-unsafe-fn.html>
+
+warning[E0133]: call to unsafe function `windows::Win32::UI::WindowsAndMessaging::CreatePopupMenu` is unsafe and requires unsafe block
+   --> src\ui.rs:284:17
+    |
+284 |     let hmenu = CreatePopupMenu().unwrap();
+    |                 ^^^^^^^^^^^^^^^^^ call to unsafe function
+    |
+    = note: consult the function's documentation for information on how to avoid undefined behavior
+note: an unsafe function restricts its caller, but its body is safe by default
+   --> src\ui.rs:283:1
+    |
+283 | unsafe fn show_tray_menu(hwnd: HWND) {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    = note: for more information, see <https://doc.rust-lang.org/edition-guide/rust-2024/unsafe-op-in-unsafe-fn.html>
+
+warning[E0133]: call to unsafe function `windows::Win32::UI::WindowsAndMessaging::AppendMenuW` is unsafe and requires unsafe block
+   --> src\ui.rs:288:13
+    |
+288 |     let _ = AppendMenuW(hmenu, MF_STRING, ID_TRAY_OPEN, w!("Mở bảng điều khiển"));
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ call to unsafe function
+    |
+    = note: consult the function's documentation for information on how to avoid undefined behavior
+    = note: for more information, see <https://doc.rust-lang.org/edition-guide/rust-2024/unsafe-op-in-unsafe-fn.html>
+
+warning[E0133]: call to unsafe function `windows::Win32::UI::WindowsAndMessaging::AppendMenuW` is unsafe and requires unsafe block
+   --> src\ui.rs:289:13
+    |
+289 |     let _ = AppendMenuW(hmenu, MF_SEPARATOR, 0, PCWSTR::null());
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ call to unsafe function
+    |
+    = note: consult the function's documentation for information on how to avoid undefined behavior
+    = note: for more information, see <https://doc.rust-lang.org/edition-guide/rust-2024/unsafe-op-in-unsafe-fn.html>
+
+warning[E0133]: call to unsafe function `windows::Win32::UI::WindowsAndMessaging::AppendMenuW` is unsafe and requires unsafe block
+   --> src\ui.rs:292:13
+    |
+292 |     let _ = AppendMenuW(hmenu, MF_STRING, ID_TRAY_TOGGLE_VE, ve_label);
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ call to unsafe function
+    |
+    = note: consult the function's documentation for information on how to avoid undefined behavior
+    = note: for more information, see <https://doc.rust-lang.org/edition-guide/rust-2024/unsafe-op-in-unsafe-fn.html>
+
+warning[E0133]: call to unsafe function `windows::Win32::UI::WindowsAndMessaging::AppendMenuW` is unsafe and requires unsafe block
+   --> src\ui.rs:293:13
+    |
+293 |     let _ = AppendMenuW(hmenu, MF_SEPARATOR, 0, PCWSTR::null());
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ call to unsafe function
+    |
+    = note: consult the function's documentation for information on how to avoid undefined behavior
+    = note: for more information, see <https://doc.rust-lang.org/edition-guide/rust-2024/unsafe-op-in-unsafe-fn.html>
+
+warning[E0133]: call to unsafe function `windows::Win32::UI::WindowsAndMessaging::AppendMenuW` is unsafe and requires unsafe block
+   --> src\ui.rs:298:13
+    |
+298 |     let _ = AppendMenuW(hmenu, MF_STRING | telex_flag, ID_TRAY_TELEX, w!("Kiểu gõ: TELEX"));
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ call to unsafe function
+    |
+    = note: consult the function's documentation for information on how to avoid undefined behavior
+    = note: for more information, see <https://doc.rust-lang.org/edition-guide/rust-2024/unsafe-op-in-unsafe-fn.html>
+
+warning[E0133]: call to unsafe function `windows::Win32::UI::WindowsAndMessaging::AppendMenuW` is unsafe and requires unsafe block
+   --> src\ui.rs:299:13
+    |
+299 |     let _ = AppendMenuW(hmenu, MF_STRING | vni_flag, ID_TRAY_VNI, w!("Kiểu gõ: VNI"));
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ call to unsafe function
+    |
+    = note: consult the function's documentation for information on how to avoid undefined behavior
+    = note: for more information, see <https://doc.rust-lang.org/edition-guide/rust-2024/unsafe-op-in-unsafe-fn.html>
+
+warning[E0133]: call to unsafe function `windows::Win32::UI::WindowsAndMessaging::AppendMenuW` is unsafe and requires unsafe block
+   --> src\ui.rs:300:13
+    |
+300 |     let _ = AppendMenuW(hmenu, MF_SEPARATOR, 0, PCWSTR::null());
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ call to unsafe function
+    |
+    = note: consult the function's documentation for information on how to avoid undefined behavior
+    = note: for more information, see <https://doc.rust-lang.org/edition-guide/rust-2024/unsafe-op-in-unsafe-fn.html>
+
+warning[E0133]: call to unsafe function `windows::Win32::UI::WindowsAndMessaging::AppendMenuW` is unsafe and requires unsafe block
+   --> src\ui.rs:303:13
+    |
+303 |     let _ = AppendMenuW(hmenu, MF_STRING | autorun_flag, ID_TRAY_AUTORUN, w!("Khởi động cùng Windows"));
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ call to unsafe function
+    |
+    = note: consult the function's documentation for information on how to avoid undefined behavior
+    = note: for more information, see <https://doc.rust-lang.org/edition-guide/rust-2024/unsafe-op-in-unsafe-fn.html>
+
+warning[E0133]: call to unsafe function `windows::Win32::UI::WindowsAndMessaging::AppendMenuW` is unsafe and requires unsafe block
+   --> src\ui.rs:304:13
+    |
+304 |     let _ = AppendMenuW(hmenu, MF_SEPARATOR, 0, PCWSTR::null());
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ call to unsafe function
+    |
+    = note: consult the function's documentation for information on how to avoid undefined behavior
+    = note: for more information, see <https://doc.rust-lang.org/edition-guide/rust-2024/unsafe-op-in-unsafe-fn.html>
+
+warning[E0133]: call to unsafe function `windows::Win32::UI::WindowsAndMessaging::AppendMenuW` is unsafe and requires unsafe block
+   --> src\ui.rs:306:13
+    |
+306 |     let _ = AppendMenuW(hmenu, MF_STRING, ID_TRAY_EXIT, w!("Thoát chương trình"));
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ call to unsafe function
+    |
+    = note: consult the function's documentation for information on how to avoid undefined behavior
+    = note: for more information, see <https://doc.rust-lang.org/edition-guide/rust-2024/unsafe-op-in-unsafe-fn.html>
+
+warning[E0133]: call to unsafe function `windows::Win32::UI::WindowsAndMessaging::GetCursorPos` is unsafe and requires unsafe block
+   --> src\ui.rs:309:13
+    |
+309 |     let _ = GetCursorPos(&mut pt);
+    |             ^^^^^^^^^^^^^^^^^^^^^ call to unsafe function
+    |
+    = note: consult the function's documentation for information on how to avoid undefined behavior
+    = note: for more information, see <https://doc.rust-lang.org/edition-guide/rust-2024/unsafe-op-in-unsafe-fn.html>
+
+warning[E0133]: call to unsafe function `windows::Win32::UI::WindowsAndMessaging::SetForegroundWindow` is unsafe and requires unsafe block
+   --> src\ui.rs:310:13
+    |
+310 |     let _ = SetForegroundWindow(hwnd);
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^ call to unsafe function
+    |
+    = note: consult the function's documentation for information on how to avoid undefined behavior
+    = note: for more information, see <https://doc.rust-lang.org/edition-guide/rust-2024/unsafe-op-in-unsafe-fn.html>
+
+warning[E0133]: call to unsafe function `windows::Win32::UI::WindowsAndMessaging::TrackPopupMenu` is unsafe and requires unsafe block
+   --> src\ui.rs:311:13
+    |
+311 |       let _ = TrackPopupMenu(
+    |  _____________^
+312 | |         hmenu,
+313 | |         TPM_RIGHTBUTTON | TPM_BOTTOMALIGN | TPM_LEFTALIGN,
+314 | |         pt.x,
+...   |
+318 | |         None,
+319 | |     );
+    | |_____^ call to unsafe function
+    |
+    = note: consult the function's documentation for information on how to avoid undefined behavior
+    = note: for more information, see <https://doc.rust-lang.org/edition-guide/rust-2024/unsafe-op-in-unsafe-fn.html>
+
+warning[E0133]: call to unsafe function `windows::Win32::UI::WindowsAndMessaging::DestroyMenu` is unsafe and requires unsafe block
+   --> src\ui.rs:320:13
+    |
+320 |     let _ = DestroyMenu(hmenu);
+    |             ^^^^^^^^^^^^^^^^^^ call to unsafe function
+    |
+    = note: consult the function's documentation for information on how to avoid undefined behavior
+    = note: for more information, see <https://doc.rust-lang.org/edition-guide/rust-2024/unsafe-op-in-unsafe-fn.html>
+
+Some errors have detailed explanations: E0133, E0277, E0308, E0425, E0432.
+For more information about an error, try `rustc --explain E0133`.
+warning: `core_engine` (lib) generated 21 warnings
+error: could not compile `core_engine` (lib) due to 16 previous errors; 21 warnings emitted
