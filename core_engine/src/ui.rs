@@ -24,12 +24,20 @@ use windows::Win32::System::Registry::{
     RegCloseKey, RegDeleteValueW, RegOpenKeyExW, RegQueryValueExW, RegSetValueExW,
     HKEY, HKEY_CURRENT_USER, KEY_READ, KEY_WRITE, REG_SZ,
 };
+
+#[link(name = "kernel32")]
+unsafe extern "system" {
+    fn CreateMutexW(lpMutexAttributes: *const std::ffi::c_void, bInitialOwner: i32, lpName: *const u16) -> isize;
+    fn CloseHandle(hObject: isize) -> i32;
+    fn GetLastError() -> u32;
+}
+const ERROR_ALREADY_EXISTS: u32 = 183;
 use windows::Win32::UI::Shell::{
     Shell_NotifyIconW, NIM_ADD, NIM_DELETE, NIM_MODIFY, NOTIFYICONDATAW, NIF_ICON, NIF_MESSAGE, NIF_TIP,
 };
 use windows::Win32::UI::WindowsAndMessaging::{
     AppendMenuW, CreateIconIndirect, CreatePopupMenu, CreateWindowExW, DefWindowProcW,
-    DestroyMenu, DestroyWindow, DispatchMessageW, GetCursorPos, GetMessageW,
+    DestroyMenu, DestroyWindow, DispatchMessageW, FindWindowW, GetCursorPos, GetMessageW,
     GetSystemMetrics, ICONINFO, LoadCursorW, PostQuitMessage, RegisterClassExW,
     SetForegroundWindow, ShowWindow, TrackPopupMenu,
     CS_HREDRAW, CS_VREDRAW, IDC_ARROW, IDC_HAND,
@@ -297,8 +305,29 @@ unsafe fn create_piggy_icon(is_v: bool) -> windows::Win32::UI::WindowsAndMessagi
 /// Khởi chạy ứng dụng với giao diện đồ họa hiện đại chuẩn Mockup
 pub fn run_ui_app() {
     unsafe {
-        let instance = GetModuleHandleW(None).unwrap();
         let class_name = w!("BurinSmartKey_MainUI");
+        let mutex_name = w!("BurinSmartKey_SingleInstance_Mutex");
+
+        // 1. Kiểm tra Single Instance bằng Mutex
+        let h_mutex = CreateMutexW(std::ptr::null(), 1, mutex_name.as_ptr());
+        if GetLastError() == ERROR_ALREADY_EXISTS {
+            // Đã có một tiến trình Burin Smart Key đang chạy trước đó!
+            // Tìm cửa sổ cũ và hiển thị / đưa lên hàng đầu
+            let existing_hwnd = FindWindowW(class_name, None);
+            if let Ok(hwnd) = existing_hwnd {
+                if hwnd.0 as usize != 0 {
+                    let _ = ShowWindow(hwnd, SW_RESTORE);
+                    let _ = SetForegroundWindow(hwnd);
+                }
+            }
+            if h_mutex != 0 {
+                CloseHandle(h_mutex);
+            }
+            // Thoát ngay tiến trình mới, chỉ giữ lại duy nhất 1 tiến trình
+            return;
+        }
+
+        let instance = GetModuleHandleW(None).unwrap();
 
         let wc = WNDCLASSEXW {
             cbSize: std::mem::size_of::<WNDCLASSEXW>() as u32,
@@ -356,6 +385,10 @@ pub fn run_ui_app() {
 
         crate::windows_hook::uninstall_hooks();
         remove_tray_icon(hwnd);
+
+        if h_mutex != 0 {
+            CloseHandle(h_mutex);
+        }
     }
 }
 
