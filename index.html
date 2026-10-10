@@ -639,6 +639,100 @@
             font-family: 'JetBrains Mono', monospace;
         }
 
+        /* Installation Guide Section */
+        .install-guide-section {
+            max-width: 1000px;
+            margin: 0 auto 90px;
+            padding: 40px;
+            background: #FFFFFF;
+            border-radius: 28px;
+            border: 1px solid #E2E8F0;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+        }
+
+        .guide-box {
+            display: grid;
+            grid-template-columns: 1fr 1.1fr;
+            gap: 36px;
+            align-items: center;
+            margin-top: 28px;
+        }
+
+        .guide-img-wrap {
+            background: #0078D7;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 12px 28px rgba(0, 120, 215, 0.25);
+            border: 2px solid #005A9E;
+        }
+
+        .guide-img-wrap img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .guide-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+        }
+
+        .step-num {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #EFF6FF;
+            color: #2563EB;
+            font-weight: 800;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .step-content {
+            font-size: 15px;
+            color: #334155;
+            line-height: 1.6;
+        }
+
+        .step-content strong {
+            color: #0F172A;
+        }
+
+        .safe-badge-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #ECFDF5;
+            color: #065F46;
+            border: 1px solid #A7F3D0;
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 800px) {
+            .guide-box {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+            .install-guide-section {
+                padding: 24px;
+            }
+        }
+
         /* CTA Banner */
         .cta-banner {
             max-width: 1200px;
@@ -735,6 +829,7 @@
         <div class="nav-links">
             <a href="#features" class="nav-link">Tính năng</a>
             <a href="#comparison" class="nav-link">So sánh</a>
+            <a href="#install-guide" class="nav-link">Hướng dẫn cài đặt</a>
             <a href="#donate" class="nav-link">☕ Mời tác giả cà phê</a>
             <a href="https://github.com/vohoaidanh/BurinSmartKey" target="_blank" class="github-btn">
                 <svg height="20" width="20" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
@@ -950,6 +1045,45 @@
                     <div class="donate-info-row">
                         <span class="donate-info-label">Người nhận:</span>
                         <span class="donate-info-val">VÕ HOÀI DANH</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Installation & SmartScreen Guide Section -->
+    <section class="install-guide-section" id="install-guide">
+        <div class="section-header" style="margin-bottom: 10px;">
+            <h2>💡 Lưu ý khi cài đặt lần đầu trên Windows</h2>
+            <p>Cách xử lý khi gặp màn hình xanh cảnh báo Microsoft Defender SmartScreen</p>
+        </div>
+        <div class="guide-box">
+            <div class="guide-img-wrap">
+                <img src="smartscreen_guide.png" alt="Màn hình Microsoft Defender SmartScreen" loading="lazy">
+            </div>
+            <div class="guide-steps">
+                <div class="step-item">
+                    <div class="step-num">1</div>
+                    <div class="step-content">
+                        Khi tải về và mở file, nếu Windows hiện bảng xanh <em>"Windows protected your PC"</em>, hãy nhấn vào dòng chữ <strong>"More info"</strong> (Thêm thông tin).
+                    </div>
+                </div>
+                <div class="step-item">
+                    <div class="step-num">2</div>
+                    <div class="step-content">
+                        Một nút mới sẽ xuất hiện ở góc dưới bên phải, nhấn <strong>"Run anyway"</strong> (Vẫn chạy) để bắt đầu cài đặt bình thường.
+                    </div>
+                </div>
+                <div class="step-item">
+                    <div class="step-num">3</div>
+                    <div class="step-content">
+                        <strong>Tại sao lại có cảnh báo này?</strong> Đây là cơ chế bảo vệ mặc định của Microsoft đối với các ứng dụng mới phát hành hoặc mã nguồn mở độc lập chưa đăng ký chứng chỉ số doanh nghiệp đắt tiền.
+                    </div>
+                </div>
+                <div>
+                    <div class="safe-badge-pill">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                        Mã nguồn mở 100% minh bạch &amp; An toàn tuyệt đối trên GitHub
                     </div>
                 </div>
             </div>

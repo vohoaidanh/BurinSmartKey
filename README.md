@@ -32,4 +32,11 @@
 
 ## 🚀 Cài đặt & Sử dụng
 
-Tải file cài đặt tại [**`Burin_Smart_Key_Setup.exe`**](Burin_Smart_Key_Setup.exe), nhấp đúp chuột và nhấn **Install** để sử dụng ngay.
+1. Tải file cài đặt tại [**`Burin_Smart_Key_Setup.exe`**](Burin_Smart_Key_Setup.exe).
+2. Nhấp đúp chuột vào file để tiến hành cài đặt.
+
+> 💡 **Lưu ý khi cài đặt lần đầu trên Windows (SmartScreen):**
+> Do Burin Smart Key là phần mềm mã nguồn mở độc lập (chưa mua chứng chỉ số doanh nghiệp đắt tiền), Microsoft Defender SmartScreen có thể hiện bảng xanh *"Windows protected your PC"*.
+> * Bạn chỉ cần nhấn vào **`More info`** (Thêm thông tin) $\rightarrow$ Chọn **`Run anyway`** (Vẫn chạy) là có thể cài đặt hoàn toàn bình thường.
+> * Phần mềm mã nguồn mở 100% bằng Rust, sạch sẽ, không quảng cáo và an toàn tuyệt đối.
+
